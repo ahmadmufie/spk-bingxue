@@ -105,7 +105,7 @@ renderNav('user', 'user_dashboard.php');
         <div class="stat-card green">
             <div class="stat-label">C2 - Pengalaman</div>
             <div class="stat-value"><?= number_format($app['c2_score'], 1) ?></div>
-            <div class="stat-sub">Pengalaman Kerja</div>
+            <div class="stat-sub">Pengalaman Kerja: <?= htmlspecialchars($app['experience_years'] ?? '-') ?></div>
         </div>
         <div class="stat-card yellow">
             <div class="stat-label">C3 - Pre-Test</div>

@@ -1,4 +1,4 @@
-# SPK Bingxue Rancaekek v2
+# SPK Bingxue Rancaekek
 ## Sistem Pendukung Keputusan Rekrutmen Karyawan (SAW Method)
 
 ### Setup Instructions
@@ -12,10 +12,10 @@
    - Klik "Go"
 
 3. **Salin folder ke htdocs:**
-   - Copy seluruh folder `spk_bingxue_v2` ke `C:/xampp/htdocs/`
+   - Copy seluruh folder `spk-bingxue` ke `C:/xampp/htdocs/`
 
 4. **Akses aplikasi:**
-   - Buka browser: `http://localhost/spk_bingxue_v2/`
+   - Buka browser: `http://localhost/spk-bingxue/`
 
 ### Default Login
 | Role  | Email                  | Password   |
