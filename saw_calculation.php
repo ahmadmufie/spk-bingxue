@@ -108,9 +108,10 @@ function calculateSAW() {
 
 /**
  * Get C1 score from self-assessment scores dynamically using sub-criteria weights
+ * Returns 0-100 (weighted average of 4 skill components)
  */
 function calcC1Score($db, $comm, $coop, $ethics, $tech) {
-    // Get weights from sub_criteria table
+    // Get weights from sub_criteria table (in percentages)
     $getVal = function($label) use ($db) {
         $lbl = sanitize($db, $label);
         $r = $db->query("SELECT sc.value FROM sub_criteria sc
@@ -119,18 +120,20 @@ function calcC1Score($db, $comm, $coop, $ethics, $tech) {
         if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
         return 0;
     };
-    $wComm   = $getVal('Komunikasi');
-    $wCoop   = $getVal('Kerjasama');
-    $wEthics = $getVal('Etika');
-    $wTech   = $getVal('Teknis');
+    $wComm   = $getVal('Komunikasi');      // 40
+    $wCoop   = $getVal('Kerjasama');       // 30
+    $wEthics = $getVal('Etika');          // 20
+    $wTech   = $getVal('Teknis');         // 10
     $total   = $wComm + $wCoop + $wEthics + $wTech;
     if ($total == 0) return 0;
+    // Weighted average: (40% * comm + 30% * coop + 20% * ethics + 10% * tech) / 100
     $score = (($wComm * $comm) + ($wCoop * $coop) + ($wEthics * $ethics) + ($wTech * $tech)) / $total;
-    return round($score, 2);
+    return round(min(100, max(0, $score)), 2);  // Clamp to 0-100
 }
 
 /**
  * Get C2 score from experience string
+ * Returns 0-100: >3 Tahun=100, 3 Tahun=75, 2 Tahun=50, 1 Tahun=25, Tidak Ada=0
  */
 function calcC2Score($db, $experience) {
     $exp = sanitize($db, $experience);
@@ -138,11 +141,12 @@ function calcC2Score($db, $experience) {
                        JOIN criteria c ON sc.criteria_id = c.id
                        WHERE c.code = 'C2' AND sc.label = '$exp' LIMIT 1");
     if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
-    return 10;
+    return 0;  // Default: no experience
 }
 
 /**
  * Get C3 score from pre-test numeric score
+ * Returns 70 (80-100), 20 (50-79), atau 10 (0-49)
  */
 function calcC3Score($db, $pretestScore) {
     $score = (float)$pretestScore;
@@ -154,11 +158,12 @@ function calcC3Score($db, $pretestScore) {
         $r = $db->query("SELECT sc.value FROM sub_criteria sc JOIN criteria c ON sc.criteria_id=c.id WHERE c.code='C3' AND sc.label LIKE '%0-49%' LIMIT 1");
     }
     if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
-    return 10;
+    return 10;  // Default: nilai terendah
 }
 
 /**
  * Get C4 score from education string
+ * Returns 0-100: D3/S1/S2=100, SMA/SMK=50, SMP=0
  */
 function calcC4Score($db, $education) {
     $edu = sanitize($db, $education);
@@ -166,11 +171,11 @@ function calcC4Score($db, $education) {
                        JOIN criteria c ON sc.criteria_id = c.id
                        WHERE c.code = 'C4' AND sc.label = '$edu' LIMIT 1");
     if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
-    return 10;
+    return 0;  // Default: minimum education
 }
 
 /**
- * Get C5 score from age integer
+ * Returns 0-100: 24-25=100, 22-23=75, 20-21=50, 18-19=25
  */
 function calcC5Score($db, $age) {
     $age = (int)$age;
@@ -184,6 +189,7 @@ function calcC5Score($db, $age) {
         $r = $db->query("SELECT sc.value FROM sub_criteria sc JOIN criteria c ON sc.criteria_id=c.id WHERE c.code='C5' AND sc.label LIKE '%18-19%' LIMIT 1");
     }
     if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
+    return 0;  // Default: minimum score$r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
     return 10;
 }
 ?>
