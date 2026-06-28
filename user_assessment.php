@@ -19,19 +19,25 @@ if (!$app || !$app['personal_data_filled']) {
     redirect('user_personal.php');
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $comm   = min(100, max(0, (int)($_POST['skill_communication'] ?? 0)));
-    $coop   = min(100, max(0, (int)($_POST['skill_cooperation'] ?? 0)));
-    $ethics = min(100, max(0, (int)($_POST['skill_ethics'] ?? 0)));
-    $tech   = min(100, max(0, (int)($_POST['skill_technical'] ?? 0)));
+ensureC1AssessmentColumns($db);
 
-    $c1 = calcC1Score($db, $comm, $coop, $ethics, $tech);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $operatingEquipment = min(5, max(1, (int)($_POST['skill_operating_equipment'] ?? $_POST['skill_communication'] ?? 3)));
+    $sop                 = min(5, max(1, (int)($_POST['skill_sop'] ?? $_POST['skill_cooperation'] ?? 3)));
+    $speedAccuracy       = min(5, max(1, (int)($_POST['skill_speed_accuracy'] ?? $_POST['skill_ethics'] ?? 3)));
+    $customerService     = min(5, max(1, (int)($_POST['skill_customer_service'] ?? $_POST['skill_technical'] ?? 3)));
+    $teamwork            = min(5, max(1, (int)($_POST['skill_teamwork'] ?? 3)));
+
+    $c1 = calcC1Score($db, $operatingEquipment, $sop, $speedAccuracy, $customerService, $teamwork);
 
     $stmt2 = $db->prepare("UPDATE applicants SET
         skill_communication=?, skill_cooperation=?, skill_ethics=?, skill_technical=?,
-        c1_score=?, self_assessment_filled=1 WHERE user_id=?");
-    $stmt2->bind_param("dddddi", $comm, $coop, $ethics, $tech, $c1, $userId);
+        skill_operating_equipment=?, skill_sop=?, skill_speed_accuracy=?,
+        skill_customer_service=?, skill_teamwork=?, c1_score=?, self_assessment_filled=1 WHERE user_id=?");
+    $stmt2->bind_param("ddddddddddi", $operatingEquipment, $sop, $speedAccuracy, $customerService, $operatingEquipment, $sop, $speedAccuracy, $customerService, $teamwork, $c1, $userId);
     $stmt2->execute();
+
+    calculateSAW();
 
     flash('Self-assessment berhasil disimpan!', 'success');
     redirect('user_dashboard.php');
@@ -44,7 +50,7 @@ renderNav('user', 'user_assessment.php');
 <div class="page-header">
     <div class="breadcrumb">Dashboard → Self-Assessment</div>
     <h1>Self-Assessment Keterampilan (C1)</h1>
-    <p>Nilai kemampuan diri Anda secara jujur pada rentang 0-100.</p>
+    <p>Nilai kemampuan diri Anda secara jujur pada skala 1-5 untuk setiap aspek berikut.</p>
 </div>
 
 <div class="card" style="max-width:640px;">
@@ -52,10 +58,11 @@ renderNav('user', 'user_assessment.php');
     <form method="POST" id="assessmentForm">
         <?php
         $skills = [
-            ['key' => 'skill_communication', 'label' => 'Komunikasi', 'sub' => 'Bobot sub-kriteria: 40% dari C1', 'icon' => '💬', 'val' => $app['skill_communication'] ?? 70],
-            ['key' => 'skill_cooperation',   'label' => 'Kerjasama',  'sub' => 'Bobot sub-kriteria: 30% dari C1', 'icon' => '🤝', 'val' => $app['skill_cooperation'] ?? 70],
-            ['key' => 'skill_ethics',        'label' => 'Etika',      'sub' => 'Bobot sub-kriteria: 20% dari C1', 'icon' => '⚖️', 'val' => $app['skill_ethics'] ?? 70],
-            ['key' => 'skill_technical',     'label' => 'Teknis',     'sub' => 'Bobot sub-kriteria: 10% dari C1', 'icon' => '🔧', 'val' => $app['skill_technical'] ?? 70],
+            ['key' => 'skill_operating_equipment', 'label' => 'Kemampuan mengoperasikan peralatan kerja', 'sub' => 'Skor 1-5', 'icon' => '🛠️', 'val' => normalizeC1SliderValue($app['skill_operating_equipment'] ?? $app['skill_communication'] ?? 3)],
+            ['key' => 'skill_sop',                 'label' => 'Kemampuan membuat produk sesuai SOP', 'sub' => 'Skor 1-5', 'icon' => '📋', 'val' => normalizeC1SliderValue($app['skill_sop'] ?? $app['skill_cooperation'] ?? 3)],
+            ['key' => 'skill_speed_accuracy',      'label' => 'Kecepatan dan ketelitian bekerja', 'sub' => 'Skor 1-5', 'icon' => '⚡', 'val' => normalizeC1SliderValue($app['skill_speed_accuracy'] ?? $app['skill_ethics'] ?? 3)],
+            ['key' => 'skill_customer_service',    'label' => 'Kemampuan melayani pelanggan', 'sub' => 'Skor 1-5', 'icon' => '🤝', 'val' => normalizeC1SliderValue($app['skill_customer_service'] ?? $app['skill_technical'] ?? 3)],
+            ['key' => 'skill_teamwork',            'label' => 'Kemampuan bekerjasama tim', 'sub' => 'Skor 1-5', 'icon' => '👥', 'val' => normalizeC1SliderValue($app['skill_teamwork'] ?? 3)],
         ];
         foreach ($skills as $s):
         ?>
@@ -64,13 +71,15 @@ renderNav('user', 'user_assessment.php');
             <p class="text-sm text-muted mb-4"><?= $s['sub'] ?></p>
             <div class="range-wrap">
                 <input type="range" class="form-range" name="<?= $s['key'] ?>"
-                       id="<?= $s['key'] ?>" min="0" max="100" step="5"
+                       id="<?= $s['key'] ?>" min="1" max="5" step="1"
                        value="<?= (int)$s['val'] ?>"
                        oninput="document.getElementById('val_<?= $s['key'] ?>').textContent=this.value">
                 <span class="range-val" id="val_<?= $s['key'] ?>"><?= (int)$s['val'] ?></span>
             </div>
         </div>
         <?php endforeach; ?>
+
+        <p class="text-sm text-muted">Skor akan otomatis dihitung berdasarkan rumus SAW.</p>
 
         <div class="separator"></div>
         <div class="flex gap-3">

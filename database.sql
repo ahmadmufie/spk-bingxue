@@ -44,18 +44,23 @@ CREATE TABLE IF NOT EXISTS `applicants` (
   `self_assessment_filled` tinyint(1) DEFAULT 0,
   `submitted_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `skill_operating_equipment` decimal(5,2) DEFAULT 0.00,
+  `skill_sop` decimal(5,2) DEFAULT 0.00,
+  `skill_speed_accuracy` decimal(5,2) DEFAULT 0.00,
+  `skill_customer_service` decimal(5,2) DEFAULT 0.00,
+  `skill_teamwork` decimal(5,2) DEFAULT 0.00,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `applicants_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table spk_bingxue.applicants: ~0 rows (approximately)
-REPLACE INTO `applicants` (`id`, `user_id`, `skill_communication`, `skill_cooperation`, `skill_ethics`, `skill_technical`, `c1_score`, `experience_years`, `c2_score`, `pretest_score`, `c3_score`, `pretest_taken`, `education`, `c4_score`, `age`, `c5_score`, `saw_value`, `rank`, `status`, `personal_data_filled`, `self_assessment_filled`, `submitted_at`, `updated_at`) VALUES
-	(1, 2, 100.00, 100.00, 100.00, 100.00, 100.00, '>3 Tahun', 30.00, 90.00, 70.00, 1, 'D3/S1/S2', 70.00, 25, 40.00, 1.000000, 1, 'pending', 1, 1, '2026-06-26 19:18:39', '2026-06-26 19:18:39'),
-	(2, 3, 100.00, 0.00, 100.00, 0.00, 60.00, '1 Tahun', 15.00, 80.00, 70.00, 1, 'SMA/SMK', 20.00, 19, 10.00, 0.572857, 4, 'pending', 1, 1, '2026-06-26 19:28:52', '2026-06-26 19:34:38'),
-	(3, 4, 100.00, 100.00, 100.00, 0.00, 90.00, '3 Tahun', 25.00, 70.00, 20.00, 1, 'SMA/SMK', 20.00, 23, 30.00, 0.653333, 2, 'pending', 1, 1, '2026-06-26 19:32:15', '2026-06-26 19:32:15'),
-	(4, 5, 100.00, 0.00, 0.00, 0.00, 40.00, 'Tidak Ada Pengalaman', 10.00, 80.00, 70.00, 1, 'D3/S1/S2', 70.00, 24, 40.00, 0.653333, 3, 'pending', 1, 1, '2026-06-26 19:34:38', '2026-06-26 19:34:38'),
-	(5, 6, 0.00, 100.00, 100.00, 100.00, 60.00, '2 Tahun', 20.00, 40.00, 10.00, 1, 'SMP', 10.00, 21, 20.00, 0.446667, 5, 'pending', 1, 1, '2026-06-26 19:36:25', '2026-06-26 19:36:25');
+-- Dumping data for table spk_bingxue.applicants: ~5 rows (approximately)
+REPLACE INTO `applicants` (`id`, `user_id`, `skill_communication`, `skill_cooperation`, `skill_ethics`, `skill_technical`, `c1_score`, `experience_years`, `c2_score`, `pretest_score`, `c3_score`, `pretest_taken`, `education`, `c4_score`, `age`, `c5_score`, `saw_value`, `rank`, `status`, `personal_data_filled`, `self_assessment_filled`, `submitted_at`, `updated_at`, `skill_operating_equipment`, `skill_sop`, `skill_speed_accuracy`, `skill_customer_service`, `skill_teamwork`) VALUES
+	(1, 2, 4.00, 5.00, 5.00, 4.00, 40.00, '3 Tahun', 25.00, 90.00, 70.00, 1, 'SMA/SMK', 20.00, 25, 40.00, 0.892900, 1, 'pending', 1, 1, '2026-06-26 19:18:39', '2026-06-28 18:20:17', 4.00, 5.00, 5.00, 4.00, 5.00),
+	(2, 3, 5.00, 3.00, 4.00, 3.00, 20.00, '1 Tahun', 15.00, 80.00, 70.00, 1, 'SMA/SMK', 20.00, 19, 10.00, 0.567900, 4, 'pending', 1, 1, '2026-06-26 19:28:52', '2026-06-28 18:20:02', 5.00, 3.00, 4.00, 3.00, 3.00),
+	(3, 4, 4.00, 4.00, 3.00, 4.00, 20.00, '3 Tahun', 25.00, 70.00, 20.00, 1, 'SMA/SMK', 20.00, 23, 30.00, 0.575000, 3, 'pending', 1, 1, '2026-06-26 19:32:15', '2026-06-28 18:20:02', 4.00, 4.00, 3.00, 4.00, 3.00),
+	(4, 5, 4.00, 3.00, 4.00, 2.00, 10.00, 'Tidak Ada Pengalaman', 10.00, 80.00, 70.00, 1, 'D3/S1/S2', 70.00, 24, 40.00, 0.625000, 2, 'pending', 1, 1, '2026-06-26 19:34:38', '2026-06-28 18:20:02', 4.00, 3.00, 4.00, 2.00, 3.00),
+	(5, 6, 4.00, 5.00, 4.00, 3.00, 30.00, '2 Tahun', 20.00, 40.00, 10.00, 1, 'SMP', 10.00, 21, 20.00, 0.525000, 5, 'pending', 1, 1, '2026-06-26 19:36:25', '2026-06-28 18:20:02', 4.00, 5.00, 4.00, 3.00, 4.00);
 
 -- Dumping structure for table spk_bingxue.criteria
 CREATE TABLE IF NOT EXISTS `criteria` (
@@ -137,10 +142,10 @@ CREATE TABLE IF NOT EXISTS `sub_criteria` (
 
 -- Dumping data for table spk_bingxue.sub_criteria: ~19 rows (approximately)
 REPLACE INTO `sub_criteria` (`id`, `criteria_id`, `label`, `value`) VALUES
-	(1, 1, 'Komunikasi (bobot 40%)', 40.00),
-	(2, 1, 'Kerjasama (bobot 30%)', 30.00),
-	(3, 1, 'Etika (bobot 20%)', 20.00),
-	(4, 1, 'Teknis (bobot 10%)', 10.00),
+	(1, 1, '86-100 Sangat Baik', 40.00),
+	(2, 1, '76-85 Baik', 30.00),
+	(3, 1, '66-75 Cukup', 20.00),
+	(4, 1, '<65 Kurang', 10.00),
 	(5, 2, '>3 Tahun', 30.00),
 	(6, 2, '3 Tahun', 25.00),
 	(7, 2, '2 Tahun', 20.00),
@@ -169,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table spk_bingxue.users: ~1 rows (approximately)
+-- Dumping data for table spk_bingxue.users: ~6 rows (approximately)
 REPLACE INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`) VALUES
 	(1, 'Administrator', 'admin@bingxue.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '2026-06-26 19:11:36'),
 	(2, 'Devia', 'devia@gmail.com', '$2y$10$4/bN69ygcqUfF3eSta/fTehBTX/h04oqGycmFW4ZLzAUvAEoKtmlS', 'user', '2026-06-26 19:17:06'),

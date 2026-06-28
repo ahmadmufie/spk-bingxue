@@ -46,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             c2_score=?, c4_score=?, c5_score=?, personal_data_filled=1 WHERE user_id=?");
         $stmt2->bind_param("ssiiddi", $education, $experience, $age, $c2, $c4, $c5, $userId);
         $stmt2->execute();
+
+        calculateSAW();
+
         flash('Data diri berhasil disimpan!', 'success');
         redirect('user_dashboard.php');
     } else {

@@ -159,7 +159,7 @@ renderNav('admin', 'admin_dashboard.php');
                     <td><?= number_format($row['c3_score'], 1) ?><span class="text-muted text-sm"> (<?= number_format($row['pretest_score'], 0) ?>%)</span></td>
                     <td><?= number_format($row['c4_score'], 1) ?></td>
                     <td><?= number_format($row['c5_score'], 1) ?></td>
-                    <td style="font-weight:700;color:var(--accent)"><?= number_format($row['saw_value'] * 100, 1) ?></td>
+                    <td style="font-weight:700;color:var(--accent)"><?= number_format($row['saw_value'] * 100, 2) ?></td>
                     <td>
                         <?php
                         $s = $row['status'];

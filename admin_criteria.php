@@ -17,7 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("di", $w, $cid);
             $stmt->execute();
         }
-        flash('Bobot kriteria berhasil diperbarui.', 'success');
+        // Recalculate SAW immediately after weights change
+        require_once 'saw_calculation.php';
+        calculateSAW();
+        flash('Bobot kriteria berhasil diperbarui dan SAW direcalculate.', 'success');
         redirect('admin_criteria.php');
     }
 
@@ -30,7 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("di", $v, $sid);
             $stmt->execute();
         }
-        flash('Nilai sub-kriteria berhasil diperbarui.', 'success');
+        // Recalculate SAW immediately after sub-criteria change
+        require_once 'saw_calculation.php';
+        calculateSAW();
+        flash('Nilai sub-kriteria berhasil diperbarui dan SAW direcalculate.', 'success');
         redirect('admin_criteria.php');
     }
 }

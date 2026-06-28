@@ -70,22 +70,22 @@ renderNav('user', 'user_dashboard.php');
         echo '<div class="status-card">
             <div class="status-icon">🎉</div>
             <div class="status-text" style="color:var(--success)">Selamat! Lamaran Diterima</div>
-            <p class="text-muted">Anda telah diterima sebagai karyawan. Silakan hubungi pihak manajemen.</p>
-            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'], 4) . '</strong> | Peringkat: <strong>#' . $app['rank'] . '</strong></div>
+            <p class="text-muted">Anda telah diterima sebagai karyawan. Silakan datang ke outlet untuk sesi interview.</p>
+            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'] * 100, 2) . '%</strong> | Peringkat: <strong>#' . $app['rank'] . '</strong></div>
         </div>';
     } elseif ($status === 'rejected') {
         echo '<div class="status-card">
             <div class="status-icon">😔</div>
             <div class="status-text" style="color:var(--danger)">Maaf, Lamaran Ditolak</div>
             <p class="text-muted">Terima kasih atas partisipasi Anda. Semoga sukses di kesempatan lain.</p>
-            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'], 4) . '</strong> | Peringkat: <strong>#' . $app['rank'] . '</strong></div>
+            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'] * 100, 2) . '%</strong> | Peringkat: <strong>#' . $app['rank'] . '</strong></div>
         </div>';
     } else {
         echo '<div class="status-card">
             <div class="status-icon">⏳</div>
             <div class="status-text" style="color:var(--warning)">Sedang Diproses</div>
             <p class="text-muted">Pendaftaran lengkap. Menunggu keputusan dari admin.</p>
-            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'], 4) . '</strong> | Peringkat: <strong>#' . ($app['rank'] ?: '-') . '</strong></div>
+            <div class="saw-score-display">Nilai SAW: <strong>' . number_format($app['saw_value'] * 100, 2) . '%</strong> | Peringkat: <strong>#' . ($app['rank'] ?: '-') . '</strong></div>
         </div>';
     }
     ?>
@@ -140,7 +140,7 @@ renderNav('user', 'user_dashboard.php');
     </div>
     <div class="card">
         <div class="card-title">⭐ Self-Assessment</div>
-        <p class="text-sm text-muted mb-4">Nilai diri Anda pada aspek Komunikasi, Kerjasama, Etika, Teknis (C1).</p>
+        <p class="text-sm text-muted mb-4">Nilai diri Anda pada aspek kemampuan kerja, SOP, ketelitian, pelayanan pelanggan, dan kerja tim (C1).</p>
         <?php if ($step2): ?>
             <span class="badge badge-accepted">✓ Selesai</span>
             <a href="user_assessment.php" class="btn btn-outline btn-sm" style="margin-left:8px;">Edit</a>

@@ -78,7 +78,6 @@ function calculateSAW() {
             + ($weights['C3'] * $r3)
             + ($weights['C4'] * $r4)
             + ($weights['C5'] * $r5);
-
         $scored[] = [
             'id'         => $a['id'],
             'c1_norm'    => round($r1, 4),
@@ -86,7 +85,8 @@ function calculateSAW() {
             'c3_norm'    => round($r3, 4),
             'c4_norm'    => round($r4, 4),
             'c5_norm'    => round($r5, 4),
-            'saw_value'  => round($vi, 6),
+            // store saw_value as decimal between 0-1 rounded to 4 decimals
+            'saw_value'  => round($vi, 4),
         ];
     }
 
@@ -107,28 +107,51 @@ function calculateSAW() {
 }
 
 /**
- * Get C1 score from self-assessment scores dynamically using sub-criteria weights
- * Returns 0-100 (weighted average of 4 skill components)
+ * Ensure the new C1 self-assessment columns exist in the applicants table.
  */
-function calcC1Score($db, $comm, $coop, $ethics, $tech) {
-    // Get weights from sub_criteria table (in percentages)
-    $getVal = function($label) use ($db) {
-        $lbl = sanitize($db, $label);
-        $r = $db->query("SELECT sc.value FROM sub_criteria sc
-                         JOIN criteria c ON sc.criteria_id = c.id
-                         WHERE c.code = 'C1' AND sc.label LIKE '%$lbl%' LIMIT 1");
-        if ($r && $r->num_rows > 0) return (float)$r->fetch_assoc()['value'];
-        return 0;
-    };
-    $wComm   = $getVal('Komunikasi');      // 40
-    $wCoop   = $getVal('Kerjasama');       // 30
-    $wEthics = $getVal('Etika');          // 20
-    $wTech   = $getVal('Teknis');         // 10
-    $total   = $wComm + $wCoop + $wEthics + $wTech;
-    if ($total == 0) return 0;
-    // Weighted average: (40% * comm + 30% * coop + 20% * ethics + 10% * tech) / 100
-    $score = (($wComm * $comm) + ($wCoop * $coop) + ($wEthics * $ethics) + ($wTech * $tech)) / $total;
-    return round(min(100, max(0, $score)), 2);  // Clamp to 0-100
+function ensureC1AssessmentColumns($db) {
+    $columns = [
+        'skill_operating_equipment',
+        'skill_sop',
+        'skill_speed_accuracy',
+        'skill_customer_service',
+        'skill_teamwork',
+    ];
+
+    foreach ($columns as $column) {
+        $check = $db->query("SHOW COLUMNS FROM applicants LIKE '$column'");
+        if ($check && $check->num_rows === 0) {
+            $db->query("ALTER TABLE applicants ADD COLUMN $column DECIMAL(5,2) DEFAULT 0.00");
+        }
+    }
+}
+
+/**
+ * Map the C1 skill percentage to the requested weight bucket.
+ */
+function getC1WeightFromScore($score) {
+    $score = (float)$score;
+    if ($score >= 86) return 40;
+    if ($score >= 76) return 30;
+    if ($score >= 66) return 20;
+    return 10;
+}
+
+function normalizeC1SliderValue($value) {
+    $value = (float)$value;
+    if ($value <= 0) return 3;
+    if ($value <= 5) return (int)max(1, min(5, round($value)));
+    return (int)max(1, min(5, round($value / 20)));
+}
+
+/**
+ * Get C1 score from the five new self-assessment indicators.
+ * Formula: (total / 25) * 100
+ */
+function calcC1Score($db, $operatingEquipment, $sop, $speedAccuracy, $customerService, $teamwork) {
+    $total = (float)$operatingEquipment + (float)$sop + (float)$speedAccuracy + (float)$customerService + (float)$teamwork;
+    $score = round(min(100, max(0, ($total / 25) * 100)), 2);
+    return getC1WeightFromScore($score);
 }
 
 /**
